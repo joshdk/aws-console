@@ -8,7 +8,10 @@
 package credentials
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
@@ -36,4 +39,45 @@ func FromConfig(profile string) (*sts.Credentials, error) {
 		SecretAccessKey: aws.String(value.SecretAccessKey),
 		SessionToken:    aws.String(value.SessionToken),
 	}, nil
+}
+
+// FederateUser will federate the given user credentials by calling STS
+// GetFederationToken. If the given credentials are not for a user (like
+// credentials for a role) then they are returned unmodified.
+func FederateUser(creds *sts.Credentials) (*sts.Credentials, error) {
+	// Only federate if user credentials were given.
+	if aws.StringValue(creds.SessionToken) != "" {
+		return creds, nil
+	}
+
+	// Create a new session given the static user credentials.
+	sess, err := session.NewSession(&aws.Config{
+		Credentials: credentials.NewStaticCredentials(
+			aws.StringValue(creds.AccessKeyId),
+			aws.StringValue(creds.SecretAccessKey),
+			aws.StringValue(creds.SessionToken),
+		),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// duration is a hardcoded 1 hour for the federated user session.
+	const duration = time.Hour
+
+	input := sts.GetFederationTokenInput{
+		DurationSeconds: aws.Int64(int64(duration.Seconds())),
+		Name:            aws.String("aws-console"),
+		PolicyArns: []*sts.PolicyDescriptorType{{
+			Arn: aws.String("arn:aws:iam::aws:policy/AdministratorAccess"),
+		}},
+	}
+
+	// Federate the user.
+	result, err := sts.New(sess).GetFederationToken(&input)
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Credentials, nil
 }
