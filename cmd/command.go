@@ -46,6 +46,14 @@ func Command() *cobra.Command {
 				return err
 			}
 
+			// If the named profile was configured with user credentials
+			// (opposed to a role), then the user must be federated before an
+			// AWS Console login url can be generated.
+			creds, err = credentials.FederateUser(creds)
+			if err != nil {
+				return err
+			}
+
 			// Generate a login URL for the AWS console.
 			url, err := console.GenerateLoginURL(creds)
 			if err != nil {
