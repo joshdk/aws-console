@@ -7,6 +7,9 @@
 package cmd
 
 import (
+	"fmt"
+
+	"github.com/joshdk/aws-console/console"
 	"github.com/joshdk/aws-console/credentials"
 	"github.com/spf13/cobra"
 )
@@ -38,9 +41,21 @@ func Command() *cobra.Command {
 
 		RunE: func(*cobra.Command, []string) error {
 			// Retrieve credentials from the AWS cli config files.
-			_, err := credentials.FromConfig(flags.profile)
+			creds, err := credentials.FromConfig(flags.profile)
+			if err != nil {
+				return err
+			}
 
-			return err
+			// Generate a login URL for the AWS console.
+			url, err := console.GenerateLoginURL(creds)
+			if err != nil {
+				return err
+			}
+
+			// Print the login url!
+			fmt.Println(url.String()) // nolint:forbidigo
+
+			return nil
 		},
 	}
 
