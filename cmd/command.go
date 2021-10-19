@@ -30,10 +30,13 @@ type flags struct {
 	// profile is the name of profile used for retrieving credentials from the
 	// AWS cli config files.
 	profile string
+
+	// userAgent is the user agent to use when making API calls.
+	userAgent string
 }
 
 // Command returns a complete handler for the aws-console cli.
-func Command() *cobra.Command { // nolint:funlen
+func Command() *cobra.Command {
 	var flags flags
 
 	cmd := &cobra.Command{
@@ -61,13 +64,13 @@ func Command() *cobra.Command { // nolint:funlen
 			// If the named profile was configured with user credentials
 			// (opposed to a role), then the user must be federated before an
 			// AWS Console login url can be generated.
-			creds, err = credentials.FederateUser(creds, flags.federateName, flags.federatePolicy, flags.duration)
+			creds, err = credentials.FederateUser(creds, flags.federateName, flags.federatePolicy, flags.duration, flags.userAgent)
 			if err != nil {
 				return err
 			}
 
 			// Generate a login URL for the AWS console.
-			url, err := console.GenerateLoginURL(creds, flags.duration)
+			url, err := console.GenerateLoginURL(creds, flags.duration, flags.userAgent)
 			if err != nil {
 				return err
 			}
@@ -93,6 +96,11 @@ func Command() *cobra.Command { // nolint:funlen
 	cmd.Flags().StringVarP(&flags.federatePolicy, "policy", "p",
 		"arn:aws:iam::aws:policy/AdministratorAccess",
 		"policy ARN attached to federated user session")
+
+	// Define -A/--user-agent flag.
+	cmd.Flags().StringVarP(&flags.userAgent, "user-agent", "A",
+		"joshdk/aws-console",
+		"user agent to use for http requests")
 
 	return cmd
 }

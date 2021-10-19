@@ -2,6 +2,8 @@ linters:
   enable-all: true
   disable:
     - exhaustivestruct
+    - funlen
+    - lll
     - wrapcheck
 
 issues:
