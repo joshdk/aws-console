@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
@@ -44,7 +45,7 @@ func FromConfig(profile string) (*sts.Credentials, error) {
 // FederateUser will federate the given user credentials by calling STS
 // GetFederationToken. If the given credentials are not for a user (like
 // credentials for a role) then they are returned unmodified.
-func FederateUser(creds *sts.Credentials, name, policy string, duration time.Duration) (*sts.Credentials, error) {
+func FederateUser(creds *sts.Credentials, name, policy string, duration time.Duration, userAgent string) (*sts.Credentials, error) {
 	// Only federate if user credentials were given.
 	if aws.StringValue(creds.SessionToken) != "" {
 		return creds, nil
@@ -70,8 +71,12 @@ func FederateUser(creds *sts.Credentials, name, policy string, duration time.Dur
 		}},
 	}
 
+	// Configure client.
+	client := sts.New(sess)
+	client.Handlers.Build.PushBack(request.WithSetRequestHeaders(map[string]string{"User-Agent": userAgent}))
+
 	// Federate the user.
-	result, err := sts.New(sess).GetFederationToken(&input)
+	result, err := client.GetFederationToken(&input)
 	if err != nil {
 		return nil, err
 	}
