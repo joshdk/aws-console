@@ -8,6 +8,7 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/joshdk/aws-console/console"
 	"github.com/joshdk/aws-console/credentials"
@@ -15,6 +16,9 @@ import (
 )
 
 type flags struct {
+	// duration is how long the AWS Console session should last before expiring.
+	duration time.Duration
+
 	// federateName is the identifier used for temporary security credentials
 	// when federating an IAM user.
 	federateName string
@@ -29,7 +33,7 @@ type flags struct {
 }
 
 // Command returns a complete handler for the aws-console cli.
-func Command() *cobra.Command {
+func Command() *cobra.Command { // nolint:funlen
 	var flags flags
 
 	cmd := &cobra.Command{
@@ -57,13 +61,13 @@ func Command() *cobra.Command {
 			// If the named profile was configured with user credentials
 			// (opposed to a role), then the user must be federated before an
 			// AWS Console login url can be generated.
-			creds, err = credentials.FederateUser(creds, flags.federateName, flags.federatePolicy)
+			creds, err = credentials.FederateUser(creds, flags.federateName, flags.federatePolicy, flags.duration)
 			if err != nil {
 				return err
 			}
 
 			// Generate a login URL for the AWS console.
-			url, err := console.GenerateLoginURL(creds)
+			url, err := console.GenerateLoginURL(creds, flags.duration)
 			if err != nil {
 				return err
 			}
@@ -74,6 +78,11 @@ func Command() *cobra.Command {
 			return nil
 		},
 	}
+
+	// Define -d/--duration flag.
+	cmd.Flags().DurationVarP(&flags.duration, "duration", "d",
+		12*time.Hour, // nolint:gomnd
+		"session duration")
 
 	// Define -n/--name flag.
 	cmd.Flags().StringVarP(&flags.federateName, "name", "n",
