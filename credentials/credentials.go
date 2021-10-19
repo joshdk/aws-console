@@ -44,7 +44,7 @@ func FromConfig(profile string) (*sts.Credentials, error) {
 // FederateUser will federate the given user credentials by calling STS
 // GetFederationToken. If the given credentials are not for a user (like
 // credentials for a role) then they are returned unmodified.
-func FederateUser(creds *sts.Credentials) (*sts.Credentials, error) {
+func FederateUser(creds *sts.Credentials, name, policy string) (*sts.Credentials, error) {
 	// Only federate if user credentials were given.
 	if aws.StringValue(creds.SessionToken) != "" {
 		return creds, nil
@@ -67,9 +67,9 @@ func FederateUser(creds *sts.Credentials) (*sts.Credentials, error) {
 
 	input := sts.GetFederationTokenInput{
 		DurationSeconds: aws.Int64(int64(duration.Seconds())),
-		Name:            aws.String("aws-console"),
+		Name:            aws.String(name),
 		PolicyArns: []*sts.PolicyDescriptorType{{
-			Arn: aws.String("arn:aws:iam::aws:policy/AdministratorAccess"),
+			Arn: aws.String(policy),
 		}},
 	}
 
