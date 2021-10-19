@@ -44,7 +44,7 @@ func FromConfig(profile string) (*sts.Credentials, error) {
 // FederateUser will federate the given user credentials by calling STS
 // GetFederationToken. If the given credentials are not for a user (like
 // credentials for a role) then they are returned unmodified.
-func FederateUser(creds *sts.Credentials, name, policy string) (*sts.Credentials, error) {
+func FederateUser(creds *sts.Credentials, name, policy string, duration time.Duration) (*sts.Credentials, error) {
 	// Only federate if user credentials were given.
 	if aws.StringValue(creds.SessionToken) != "" {
 		return creds, nil
@@ -61,9 +61,6 @@ func FederateUser(creds *sts.Credentials, name, policy string) (*sts.Credentials
 	if err != nil {
 		return nil, err
 	}
-
-	// duration is a hardcoded 1 hour for the federated user session.
-	const duration = time.Hour
 
 	input := sts.GetFederationTokenInput{
 		DurationSeconds: aws.Int64(int64(duration.Seconds())),
