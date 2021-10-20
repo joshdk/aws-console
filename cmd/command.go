@@ -16,6 +16,7 @@ import (
 	"github.com/joshdk/aws-console/console"
 	"github.com/joshdk/aws-console/credentials"
 	"github.com/spf13/cobra"
+	"jdk.sh/meta"
 )
 
 type flags struct {
@@ -47,8 +48,9 @@ func Command() *cobra.Command {
 	var flags flags
 
 	cmd := &cobra.Command{
-		Use:  "aws-console [flags…] [profile|-]",
-		Long: "aws-console - Generate temporary login URLs for the AWS Console",
+		Use:     "aws-console [flags…] [profile|-]",
+		Long:    "aws-console - Generate temporary login URLs for the AWS Console",
+		Version: meta.Version(),
 
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -127,8 +129,38 @@ func Command() *cobra.Command {
 
 	// Define -A/--user-agent flag.
 	cmd.Flags().StringVarP(&flags.userAgent, "user-agent", "A",
-		"joshdk/aws-console",
+		fmt.Sprintf("joshdk/aws-console %s (%s)", meta.Version(), meta.ShortSHA()),
 		"user agent to use for http requests")
 
+	// Add a custom usage footer template.
+	cmd.SetUsageTemplate(cmd.UsageTemplate() + "\n" + footerTemplate())
+
+	// Set a custom version template.
+	cmd.SetVersionTemplate(versionTemplate())
+
 	return cmd
+}
+
+// footerTemplate returns a formatted footer to be appended to the --help usage
+// message.
+func footerTemplate() string {
+	return fmt.Sprintf(
+		"Info:\n"+
+			"  https://github.com/joshdk/aws-console\n"+
+			"  %s (%s) built on %v\n",
+		meta.Version(), meta.ShortSHA(), meta.Date().Format(time.RFC3339),
+	)
+}
+
+// versionTemplate returns a formatted message for use with the --version flag.
+func versionTemplate() string {
+	return fmt.Sprintf(
+		"homepage: https://github.com/joshdk/aws-auth\n"+
+			"version:  %s\n"+
+			"sha:      %s\n"+
+			"date:     %s\n"+
+			"author:   Josh Komoroske\n"+
+			"license:  MIT\n",
+		meta.Version(), meta.ShortSHA(), meta.Date().Format(time.RFC3339),
+	)
 }

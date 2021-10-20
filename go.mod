@@ -6,6 +6,7 @@ require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/aws/aws-sdk-go v1.41.4
 	github.com/spf13/cobra v1.2.1
+	jdk.sh/meta v0.1.0
 )
 
 require (
