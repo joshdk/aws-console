@@ -4,6 +4,7 @@ linters:
     - exhaustivestruct
     - funlen
     - lll
+    - tagliatelle
     - wrapcheck
 
 issues:

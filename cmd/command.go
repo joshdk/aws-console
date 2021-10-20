@@ -8,8 +8,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"time"
 
+	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/joshdk/aws-console/console"
 	"github.com/joshdk/aws-console/credentials"
 	"github.com/spf13/cobra"
@@ -40,7 +42,7 @@ func Command() *cobra.Command {
 	var flags flags
 
 	cmd := &cobra.Command{
-		Use:  "aws-console [flags…] [profile]",
+		Use:  "aws-console [flags…] [profile|-]",
 		Long: "aws-console - Generate temporary login URLs for the AWS Console",
 
 		SilenceUsage:  true,
@@ -55,8 +57,16 @@ func Command() *cobra.Command {
 		},
 
 		RunE: func(*cobra.Command, []string) error {
-			// Retrieve credentials from the AWS cli config files.
-			creds, err := credentials.FromConfig(flags.profile)
+			// Obtain credentials from either STDIN or a named AWS cli profile.
+			var creds *sts.Credentials
+			var err error
+			if flags.profile == "-" {
+				// Retrieve credentials from JSON via STDIN.
+				creds, err = credentials.FromReader(os.Stdin)
+			} else {
+				// Retrieve credentials from the AWS cli config files.
+				creds, err = credentials.FromConfig(flags.profile)
+			}
 			if err != nil {
 				return err
 			}
