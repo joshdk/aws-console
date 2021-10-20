@@ -4,6 +4,7 @@ linters:
     - exhaustivestruct
     - funlen
     - lll
+    - maligned
     - tagliatelle
     - wrapcheck
 
