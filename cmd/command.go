@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/atotto/clipboard"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/joshdk/aws-console/console"
 	"github.com/joshdk/aws-console/credentials"
@@ -18,6 +19,10 @@ import (
 )
 
 type flags struct {
+	// clipboard indicates that the login URL should be copied to the system
+	// clipboard.
+	clipboard bool
+
 	// duration is how long the AWS Console session should last before expiring.
 	duration time.Duration
 
@@ -85,12 +90,25 @@ func Command() *cobra.Command {
 				return err
 			}
 
-			// Print the login url!
-			fmt.Println(url.String()) // nolint:forbidigo
+			switch {
+			case flags.clipboard:
+				// Copy the login url to the system clipboard.
+				fmt.Println("Copied AWS Console login URL to clipboard.") // nolint:forbidigo
 
-			return nil
+				return clipboard.WriteAll(url.String())
+			default:
+				// Print the login url.
+				fmt.Println(url.String()) // nolint:forbidigo
+
+				return nil
+			}
 		},
 	}
+
+	// Define -c/--clipboard flag.
+	cmd.Flags().BoolVarP(&flags.clipboard, "clipboard", "c",
+		false,
+		"copy login URL to clipboard")
 
 	// Define -d/--duration flag.
 	cmd.Flags().DurationVarP(&flags.duration, "duration", "d",
