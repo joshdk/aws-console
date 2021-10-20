@@ -107,7 +107,7 @@ func Command() *cobra.Command {
 			switch {
 			case flags.qr:
 				// Render the login url as a QR code.
-				return qr.Render(url.String(), flags.qrSize)
+				return qr.Render(os.Stdout, url.String(), flags.qrSize)
 			case flags.browser:
 				// Open the login url with the default browser.
 				return browser.OpenURL(url.String())

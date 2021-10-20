@@ -7,20 +7,38 @@
 package qr
 
 import (
+	"bytes"
 	"encoding/binary"
+	"image"
 	"os"
 
+	"github.com/mattn/go-isatty"
+	"github.com/mattn/go-sixel"
 	"github.com/skip2/go-qrcode"
 )
 
-// Render generates a QR code from the given image and streams it to STDOUT.
-// The stream is intended to then be redirected to a file.
-func Render(url string, size int) error {
+// Render generates a QR code from the given image and outputs it to the given
+// file. If that file is a TTY then the QR code is displayed using sixels, else
+// a raw PNG image is written.
+func Render(file *os.File, url string, size int) error {
+	// Generate a QR code PNG.
 	png, err := qrcode.Encode(url, qrcode.Low, size)
 	if err != nil {
 		return err
 	}
 
-	// Write the raw PNG bytes to STDOUT.
-	return binary.Write(os.Stdout, binary.LittleEndian, png)
+	// If the output file is not a TTY (e.g. is being redirected to another
+	// file/process) then write the raw PNG bytes.
+	if !isatty.IsTerminal(file.Fd()) {
+		return binary.Write(file, binary.LittleEndian, png)
+	}
+
+	// Decode an image back from the raw PNG data.
+	img, _, err := image.Decode(bytes.NewBuffer(png))
+	if err != nil {
+		return err
+	}
+
+	// Render the image to the output file using sixels.
+	return sixel.NewEncoder(file).Encode(img)
 }
