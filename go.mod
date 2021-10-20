@@ -6,6 +6,7 @@ require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/aws/aws-sdk-go v1.41.4
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.2.1
 	jdk.sh/meta v0.1.0
 )

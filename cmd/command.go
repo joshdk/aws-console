@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/joshdk/aws-console/console"
 	"github.com/joshdk/aws-console/credentials"
+	"github.com/joshdk/aws-console/qr"
 	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 	"jdk.sh/meta"
@@ -43,6 +44,12 @@ type flags struct {
 	// profile is the name of profile used for retrieving credentials from the
 	// AWS cli config files.
 	profile string
+
+	// qr indicates that the login URL should be rendered as a QR code.
+	qr bool
+
+	// qrSize is the width in pixels of the rendered QR code.
+	qrSize int
 
 	// userAgent is the user agent to use when making API calls.
 	userAgent string
@@ -98,6 +105,9 @@ func Command() *cobra.Command {
 			}
 
 			switch {
+			case flags.qr:
+				// Render the login url as a QR code.
+				return qr.Render(url.String(), flags.qrSize)
 			case flags.browser:
 				// Open the login url with the default browser.
 				return browser.OpenURL(url.String())
@@ -139,6 +149,16 @@ func Command() *cobra.Command {
 	cmd.Flags().StringVarP(&flags.federatePolicy, "policy", "p",
 		"arn:aws:iam::aws:policy/AdministratorAccess",
 		"policy ARN attached to federated user session")
+
+	// Define -q/--qr flag.
+	cmd.Flags().BoolVarP(&flags.qr, "qr", "q",
+		false,
+		"render login URL as a QR code")
+
+	// Define -s/--qr-size flag.
+	cmd.Flags().IntVarP(&flags.qrSize, "qr-size", "s",
+		780, // nolint:gomnd
+		"width in pixels of QR code")
 
 	// Define -A/--user-agent flag.
 	cmd.Flags().StringVarP(&flags.userAgent, "user-agent", "A",
