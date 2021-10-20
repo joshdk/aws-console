@@ -15,11 +15,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/joshdk/aws-console/console"
 	"github.com/joshdk/aws-console/credentials"
+	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 	"jdk.sh/meta"
 )
 
 type flags struct {
+	// browser indicates that the login URL should be opened with the system's
+	// default browser.
+	browser bool
+
 	// clipboard indicates that the login URL should be copied to the system
 	// clipboard.
 	clipboard bool
@@ -93,6 +98,9 @@ func Command() *cobra.Command {
 			}
 
 			switch {
+			case flags.browser:
+				// Open the login url with the default browser.
+				return browser.OpenURL(url.String())
 			case flags.clipboard:
 				// Copy the login url to the system clipboard.
 				fmt.Println("Copied AWS Console login URL to clipboard.") // nolint:forbidigo
@@ -106,6 +114,11 @@ func Command() *cobra.Command {
 			}
 		},
 	}
+
+	// Define -b/--browser flag.
+	cmd.Flags().BoolVarP(&flags.browser, "browser", "b",
+		false,
+		"open login URL with default browser")
 
 	// Define -c/--clipboard flag.
 	cmd.Flags().BoolVarP(&flags.clipboard, "clipboard", "c",
