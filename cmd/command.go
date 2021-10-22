@@ -62,7 +62,7 @@ func Command() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "aws-console [flags…] [profile|-]",
 		Long:    "aws-console - Generate temporary login URLs for the AWS Console",
-		Version: meta.Version(),
+		Version: "-",
 
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -162,38 +162,37 @@ func Command() *cobra.Command {
 
 	// Define -A/--user-agent flag.
 	cmd.Flags().StringVarP(&flags.userAgent, "user-agent", "A",
-		fmt.Sprintf("joshdk/aws-console %s (%s)", meta.Version(), meta.ShortSHA()),
+		versionFmt("joshdk/aws-console", " %s (%s)", meta.Version(), meta.ShortSHA()),
 		"user agent to use for http requests")
 
 	// Add a custom usage footer template.
-	cmd.SetUsageTemplate(cmd.UsageTemplate() + "\n" + footerTemplate())
+	cmd.SetUsageTemplate(cmd.UsageTemplate() + versionFmt(
+		"\nInfo:\n"+
+			"  https://github.com/joshdk/aws-console\n",
+		"  %s (%s) built on %v\n",
+		meta.Version(), meta.ShortSHA(), meta.DateFormat(time.RFC3339),
+	))
 
 	// Set a custom version template.
-	cmd.SetVersionTemplate(versionTemplate())
+	cmd.SetVersionTemplate(versionFmt(
+		"homepage: https://github.com/joshdk/aws-auth\n"+
+			"author:   Josh Komoroske\n"+
+			"license:  MIT\n",
+		"version:  %s\n"+
+			"sha:      %s\n"+
+			"date:     %s\n",
+		meta.Version(), meta.ShortSHA(), meta.DateFormat(time.RFC3339),
+	))
 
 	return cmd
 }
 
-// footerTemplate returns a formatted footer to be appended to the --help usage
-// message.
-func footerTemplate() string {
-	return fmt.Sprintf(
-		"Info:\n"+
-			"  https://github.com/joshdk/aws-console\n"+
-			"  %s (%s) built on %v\n",
-		meta.Version(), meta.ShortSHA(), meta.Date().Format(time.RFC3339),
-	)
-}
+// versionFmt returns the given literal, as well as a formatted string if
+// version metadata is set.
+func versionFmt(literal, format string, a ...interface{}) string {
+	if meta.Version() == "" {
+		return literal
+	}
 
-// versionTemplate returns a formatted message for use with the --version flag.
-func versionTemplate() string {
-	return fmt.Sprintf(
-		"homepage: https://github.com/joshdk/aws-auth\n"+
-			"version:  %s\n"+
-			"sha:      %s\n"+
-			"date:     %s\n"+
-			"author:   Josh Komoroske\n"+
-			"license:  MIT\n",
-		meta.Version(), meta.ShortSHA(), meta.Date().Format(time.RFC3339),
-	)
+	return literal + fmt.Sprintf(format, a...)
 }

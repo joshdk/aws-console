@@ -10,7 +10,7 @@ require (
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.2.1
-	jdk.sh/meta v0.1.0
+	jdk.sh/meta v0.1.1-0.20211021015548-cff3b930ebd9
 )
 
 require (
