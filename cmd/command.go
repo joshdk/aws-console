@@ -51,6 +51,9 @@ type flags struct {
 	// qrSize is the width in pixels of the rendered QR code.
 	qrSize int
 
+	// redirect is the AWS Console page to redirect to after logging in.
+	redirect string
+
 	// userAgent is the user agent to use when making API calls.
 	userAgent string
 }
@@ -99,7 +102,7 @@ func Command() *cobra.Command {
 			}
 
 			// Generate a login URL for the AWS console.
-			url, err := console.GenerateLoginURL(creds, flags.duration, flags.userAgent)
+			url, err := console.GenerateLoginURL(creds, flags.duration, flags.redirect, flags.userAgent)
 			if err != nil {
 				return err
 			}
@@ -159,6 +162,11 @@ func Command() *cobra.Command {
 	cmd.Flags().IntVarP(&flags.qrSize, "qr-size", "s",
 		780, // nolint:gomnd
 		"width in pixels of QR code")
+
+	// Define -r/--redirect flag.
+	cmd.Flags().StringVarP(&flags.redirect, "redirect", "r",
+		"https://console.aws.amazon.com/console/home",
+		"console page to redirect to after logging in")
 
 	// Define -A/--user-agent flag.
 	cmd.Flags().StringVarP(&flags.userAgent, "user-agent", "A",
