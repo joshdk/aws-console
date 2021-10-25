@@ -1,0 +1,39 @@
+project_name: aws-console
+
+builds:
+  - id: aws-console
+    binary: aws-console
+
+    goos:
+      - darwin
+      - linux
+
+    goarch:
+      - amd64
+
+    flags:
+      - -trimpath
+
+    ldflags:
+      - -s -w
+      - -X jdk.sh/meta.date={{ .Date }}
+      - -X jdk.sh/meta.sha={{ .Commit }}
+      - -X jdk.sh/meta.version={{ .Tag }}
+
+    env:
+      - CGO_ENABLED=0
+
+archives:
+  - id: aws-console
+    builds: [aws-console]
+    name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+
+release:
+  name_template: "{{ .Tag }} Release"
+  prerelease: auto
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  skip: true
