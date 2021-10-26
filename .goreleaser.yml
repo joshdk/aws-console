@@ -23,6 +23,9 @@ builds:
     env:
       - CGO_ENABLED=0
 
+    hooks:
+      post: upx --best --ultra-brute "{{ .Path }}"
+
 archives:
   - id: aws-console
     builds: [aws-console]
