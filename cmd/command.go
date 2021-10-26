@@ -102,7 +102,8 @@ func Command() *cobra.Command {
 			}
 
 			// Generate a login URL for the AWS console.
-			url, err := console.GenerateLoginURL(creds, flags.duration, flags.redirect, flags.userAgent)
+			redirect := resolveRedirectAlias(flags.redirect)
+			url, err := console.GenerateLoginURL(creds, flags.duration, redirect, flags.userAgent)
 			if err != nil {
 				return err
 			}
@@ -165,7 +166,7 @@ func Command() *cobra.Command {
 
 	// Define -r/--redirect flag.
 	cmd.Flags().StringVarP(&flags.redirect, "redirect", "r",
-		"https://console.aws.amazon.com/console/home",
+		"home",
 		"console page to redirect to after logging in")
 
 	// Define -A/--user-agent flag.
