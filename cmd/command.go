@@ -63,7 +63,7 @@ func Command() *cobra.Command {
 	var flags flags
 
 	cmd := &cobra.Command{
-		Use:     "aws-console [flags…] [profile|-]",
+		Use:     "aws-console [profile|-]",
 		Long:    "aws-console - Generate temporary login URLs for the AWS Console",
 		Version: "-",
 
@@ -173,6 +173,27 @@ func Command() *cobra.Command {
 	cmd.Flags().StringVarP(&flags.userAgent, "user-agent", "A",
 		versionFmt("joshdk/aws-console", " %s (%s)", meta.Version(), meta.ShortSHA()),
 		"user agent to use for http requests")
+
+	cmd.Example = `  Generate a login url for the default profile:
+  $ aws-console
+
+  Generate a login url for the "production" profile:
+  $ aws-console production
+
+  Generate a login url from the output of the aws cli:
+  $ aws sts assume-role … | aws-console -
+
+  Open url with the default browser:
+  $ aws-console --browser
+
+  Redirect to IAM service after logging in:
+  $ aws-console --redirect iam
+
+  Display a QR code for the login url:
+  $ aws-console --qr
+
+  Save QR code to a file:
+  $ aws-console --qr > qr.png`
 
 	// Add a custom usage footer template.
 	cmd.SetUsageTemplate(cmd.UsageTemplate() + versionFmt(
