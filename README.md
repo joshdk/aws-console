@@ -109,15 +109,13 @@ aws-console --redirect iam
 ---
 
 Federate the user and use the name "audit":
-
 ```shell
 aws-console --name audit
 ```
 
 Attach a readonly policy to the federated user:
-
 ```shell
-aws-console --policy arn:aws:iam::aws:policy/ReadOnlyAccess
+aws-console --policy readonly
 ```
 
 ## License

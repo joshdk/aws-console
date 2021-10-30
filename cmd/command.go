@@ -37,8 +37,7 @@ type flags struct {
 	// when federating an IAM user.
 	federateName string
 
-	// federatePolicy is the policy ARN to attach when when federating an IAM
-	// user.
+	// federatePolicy is the policy ARN to attach when federating an IAM user.
 	federatePolicy string
 
 	// profile is the name of profile used for retrieving credentials from the
@@ -96,7 +95,8 @@ func Command() *cobra.Command {
 			// If the named profile was configured with user credentials
 			// (opposed to a role), then the user must be federated before an
 			// AWS Console login url can be generated.
-			creds, err = credentials.FederateUser(creds, flags.federateName, flags.federatePolicy, flags.duration, flags.userAgent)
+			federatePolicy := resolvePolicyAlias(flags.federatePolicy)
+			creds, err = credentials.FederateUser(creds, flags.federateName, federatePolicy, flags.duration, flags.userAgent)
 			if err != nil {
 				return err
 			}
@@ -151,7 +151,7 @@ func Command() *cobra.Command {
 
 	// Define -p/--policy flag.
 	cmd.Flags().StringVarP(&flags.federatePolicy, "policy", "p",
-		"arn:aws:iam::aws:policy/AdministratorAccess",
+		"admin",
 		"policy ARN attached to federated user session")
 
 	// Define -q/--qr flag.
