@@ -5,6 +5,24 @@
 
 package cmd
 
+// policies is a list of aliases that can be resolved to IAM policy ARNs. Used
+// for attaching a policy to a federated user session.
+var policies = map[string]string{ // nolint:gochecknoglobals
+	"admin":    "arn:aws:iam::aws:policy/AdministratorAccess",
+	"all":      "arn:aws:iam::aws:policy/AdministratorAccess",
+	"billing":  "arn:aws:iam::aws:policy/job-function/Billing",
+	"readonly": "arn:aws:iam::aws:policy/ReadOnlyAccess",
+	"ro":       "arn:aws:iam::aws:policy/ReadOnlyAccess",
+}
+
+func resolvePolicyAlias(alias string) string {
+	if result, found := policies[alias]; found {
+		return result
+	}
+
+	return alias
+}
+
 // redirects is a list of aliases that can be resolved to URLs in the AWS
 // Console. Used for quickly redirecting the user to the desired service after
 // logging in.
