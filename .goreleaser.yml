@@ -19,6 +19,7 @@ builds:
       - -X jdk.sh/meta.date={{ .Date }}
       - -X jdk.sh/meta.sha={{ .Commit }}
       - -X jdk.sh/meta.version={{ .Tag }}
+      - -buildid=
 
     env:
       - CGO_ENABLED=0
