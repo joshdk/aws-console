@@ -12,7 +12,7 @@ Prebuilt binaries for several architectures can be found attached to any of the 
 
 For Linux:
 ```shell
-wget https://github.com/joshdk/aws-console/releases/download/v0.1.0/aws-console-linux-amd64.tar.gz
+wget https://github.com/joshdk/aws-console/releases/download/v0.1.1/aws-console-linux-amd64.tar.gz
 tar -xf aws-console-linux-amd64.tar.gz
 sudo install aws-console /usr/bin/aws-console
 ```
@@ -20,8 +20,8 @@ sudo install aws-console /usr/bin/aws-console
 For Mac:
 ```shell
 brew tab joshdk/tap
-brew install aws-console
-brew upgrade aws-console
+brew install joshdk/tap/aws-console
+brew upgrade joshdk/tap/aws-console
 ```
 
 A development version can also be built directly from this repository.
