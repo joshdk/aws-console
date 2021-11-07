@@ -19,10 +19,9 @@ sudo install aws-console /usr/bin/aws-console
 
 For Mac:
 ```shell
-wget https://github.com/joshdk/aws-console/releases/download/v0.1.0/aws-console-darwin-amd64.tar.gz
-tar -xf aws-console-darwin-amd64.tar.gz
-xattr -c aws-console
-sudo install aws-console /usr/bin/aws-console
+brew tab joshdk/tap
+brew install aws-console
+brew upgrade aws-console
 ```
 
 A development version can also be built directly from this repository.
