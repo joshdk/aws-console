@@ -23,7 +23,7 @@ import (
 // GenerateLoginURL takes the given sts.Credentials and generates a url.URL
 // that can be used to login to the AWS Console.
 // See https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html.
-func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, redirect, userAgent string) (*url.URL, error) {
+func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, location, userAgent string) (*url.URL, error) {
 	// federationURL is the url used for AWS federation actions.
 	const federationURL = "https://signin.aws.amazon.com/federation"
 
@@ -82,7 +82,7 @@ func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, redirect, 
 	// Return a formatted URL that can be used to login to the AWS Console.
 	return urlParams(federationURL, map[string]string{
 		"Action":      "login",
-		"Destination": redirect,
+		"Destination": location,
 		"SigninToken": token,
 	})
 }
