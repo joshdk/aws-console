@@ -40,6 +40,9 @@ type flags struct {
 	// federatePolicy is the policy ARN to attach when federating an IAM user.
 	federatePolicy string
 
+	// location is the AWS Console page to redirect to after logging in.
+	location string
+
 	// profile is the name of profile used for retrieving credentials from the
 	// AWS cli config files.
 	profile string
@@ -50,15 +53,12 @@ type flags struct {
 	// qrSize is the width in pixels of the rendered QR code.
 	qrSize int
 
-	// redirect is the AWS Console page to redirect to after logging in.
-	redirect string
-
 	// userAgent is the user agent to use when making API calls.
 	userAgent string
 }
 
 // Command returns a complete handler for the aws-console cli.
-func Command() *cobra.Command {
+func Command() *cobra.Command { // nolint:cyclop
 	var flags flags
 
 	cmd := &cobra.Command{
@@ -101,9 +101,15 @@ func Command() *cobra.Command {
 				return err
 			}
 
-			// Generate a login URL for the AWS console.
-			redirect := resolveRedirectAlias(flags.redirect)
-			url, err := console.GenerateLoginURL(creds, flags.duration, redirect, flags.userAgent)
+			// Resolve the given location alias into a redirect url to a
+			// service in the AWS Console.
+			location, ok := resolveLocationAlias(flags.location)
+			if !ok {
+				return fmt.Errorf("could not resolve location %q", flags.location) // nolint:goerr113
+			}
+
+			// Generate a login URL for the AWS Console.
+			url, err := console.GenerateLoginURL(creds, flags.duration, location, flags.userAgent)
 			if err != nil {
 				return err
 			}
@@ -144,6 +150,11 @@ func Command() *cobra.Command {
 		12*time.Hour, // nolint:gomnd
 		"session duration")
 
+	// Define -l/--location flag.
+	cmd.Flags().StringVarP(&flags.location, "location", "l",
+		"home",
+		"console page to redirect to after logging in")
+
 	// Define -n/--name flag.
 	cmd.Flags().StringVarP(&flags.federateName, "name", "n",
 		"aws-console",
@@ -164,11 +175,6 @@ func Command() *cobra.Command {
 		780, // nolint:gomnd
 		"width in pixels of QR code")
 
-	// Define -r/--redirect flag.
-	cmd.Flags().StringVarP(&flags.redirect, "redirect", "r",
-		"home",
-		"console page to redirect to after logging in")
-
 	// Define -A/--user-agent flag.
 	cmd.Flags().StringVarP(&flags.userAgent, "user-agent", "A",
 		versionFmt("joshdk/aws-console", " %s (%s)", meta.Version(), meta.ShortSHA()),
@@ -187,7 +193,7 @@ func Command() *cobra.Command {
   $ aws-console --browser
 
   Redirect to IAM service after logging in:
-  $ aws-console --redirect iam
+  $ aws-console --location iam
 
   Display a QR code for the login url:
   $ aws-console --qr
