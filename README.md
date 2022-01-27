@@ -19,13 +19,12 @@ sudo install aws-console /usr/bin/aws-console
 
 For Mac:
 ```shell
-brew tab joshdk/tap
+brew tap joshdk/tap
 brew install joshdk/tap/aws-console
-brew upgrade joshdk/tap/aws-console
 ```
 
 A development version can also be built directly from this repository.
-Requires that you already have a functional Go toolchain.
+Requires that you already have a functional Go toolchain installed.
 ```shell
 go install github.com/joshdk/aws-console@master
 ```
@@ -102,7 +101,7 @@ aws-console --duration 30m
 
 Redirect to the IAM service after logging in:
 ```shell
-aws-console --redirect iam
+aws-console --location iam
 ```
 
 ---
