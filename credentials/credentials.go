@@ -131,6 +131,13 @@ func FederateUser(creds *sts.Credentials, name, policy string, duration time.Dur
 		return nil, err
 	}
 
+	// The minimum value for the DurationSeconds parameter is 15 minutes.
+	// See https://docs.aws.amazon.com/STS/latest/APIReference/API_GetFederationToken.html#API_GetFederationToken_RequestParameters.
+	const minDuration = 15 * time.Minute
+	if duration < minDuration {
+		duration = minDuration
+	}
+
 	input := sts.GetFederationTokenInput{
 		DurationSeconds: aws.Int64(int64(duration.Seconds())),
 		Name:            aws.String(name),
