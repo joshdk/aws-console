@@ -147,7 +147,7 @@ func Command() *cobra.Command { // nolint:cyclop
 
 	// Define -d/--duration flag.
 	cmd.Flags().DurationVarP(&flags.duration, "duration", "d",
-		12*time.Hour, // nolint:gomnd
+		0,
 		"session duration")
 
 	// Define -l/--location flag.

@@ -42,11 +42,20 @@ func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, location, 
 		return nil, err
 	}
 
-	signinURL, err := urlParams(federationURL, map[string]string{
-		"Action":          "getSigninToken",
-		"Session":         string(session),
-		"SessionDuration": strconv.Itoa(int(duration.Seconds())),
-	})
+	// Set the url parameters for the get signin token call.
+	// Additionally, omit the "SessionDuration" url parameter if a duration of
+	// zero was given. This will cause the AWS Console session to default to
+	// the duration of the backing credentials.
+	values := map[string]string{
+		"Action":  "getSigninToken",
+		"Session": string(session),
+	}
+	if duration != 0 {
+		values["SessionDuration"] = strconv.Itoa(int(duration.Seconds()))
+	}
+
+	// Format a url for the get signin token call.
+	signinURL, err := urlParams(federationURL, values)
 	if err != nil {
 		return nil, err
 	}
