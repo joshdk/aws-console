@@ -105,7 +105,7 @@ func extractToken(reader io.Reader) (string, error) {
 // urlParams returns a url.URL with the given parameter values set.
 func urlParams(rawURL string, values map[string]string) (*url.URL, error) {
 	// Parse the given rawURL
-	u, err := url.Parse(rawURL)
+	parsedURL, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func urlParams(rawURL string, values map[string]string) (*url.URL, error) {
 		v.Set(key, value)
 	}
 
-	u.RawQuery = v.Encode()
+	parsedURL.RawQuery = v.Encode()
 
-	return u, nil
+	return parsedURL, nil
 }
