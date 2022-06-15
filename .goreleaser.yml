@@ -4,17 +4,9 @@ builds:
   - id: aws-console
     binary: aws-console
 
-    goos:
-      - darwin
-      - linux
-
-    goarch:
-      - amd64
-      - arm64
-
-    ignore:
-      - goos: linux
-        goarch: arm64
+    targets:
+      - darwin_amd64
+      - linux_amd64
 
     flags:
       - -trimpath
@@ -32,9 +24,27 @@ builds:
     hooks:
       post: upx --best --ultra-brute "{{ .Path }}"
 
+  - id: aws-console-m1
+    binary: aws-console
+
+    targets:
+      - darwin_arm64
+
+    flags:
+      - -trimpath
+
+    ldflags:
+      - -s -w
+      - -X jdk.sh/meta.date={{ .Date }}
+      - -X jdk.sh/meta.sha={{ .Commit }}
+      - -X jdk.sh/meta.version={{ .Tag }}
+      - -buildid=
+
+    env:
+      - CGO_ENABLED=0
+
 archives:
   - id: aws-console
-    builds: [aws-console]
     name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
 
 release:
@@ -49,7 +59,6 @@ changelog:
 
 brews:
   - name: aws-console
-    ids: [aws-console]
 
     tap:
       owner: joshdk
@@ -60,7 +69,7 @@ brews:
 
     commit_msg_template: "feat: brew formula update for {{ .ProjectName }} {{ .Tag }}"
     commit_author:
-      name: joshdk
+      name: Josh Komoroske
       email: jdkomo@gmail.com
 
     folder: Formula
