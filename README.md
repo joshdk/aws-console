@@ -1,3 +1,5 @@
+[![AWS Console][banner-image-link]][github-repo-link]
+
 [![License][license-badge]][license-link]
 [![Actions][github-actions-badge]][github-actions-link]
 [![Releases][github-release-badge]][github-release-link]
@@ -12,7 +14,7 @@ Prebuilt binaries for several architectures can be found attached to any of the 
 
 For Linux:
 ```shell
-wget https://github.com/joshdk/aws-console/releases/download/v0.2.0/aws-console-linux-amd64.tar.gz
+wget https://github.com/joshdk/aws-console/releases/download/v0.3.0/aws-console-linux-amd64.tar.gz
 tar -xf aws-console-linux-amd64.tar.gz
 sudo install aws-console /usr/bin/aws-console
 ```
@@ -55,75 +57,81 @@ This tool will detect and automatically federate IAM users transparently.
 
 Generate an AWS Console login URL for the default profile:
 ```shell
-aws-console
+$ aws-console
 ```
 
 Or for the named "production" profile:
 ```shell
-aws-console production
+$ aws-console production
 ```
 
 Or from the output of the aws cli itself:
 ```shell
-aws sts assume-role … | aws-console -
+$ aws sts assume-role … | aws-console -
 ```
 
 ---
 
 Open the generated URL using the default browser:
 ```shell
-aws-console --browser
+$ aws-console --browser
 ```
 
 Or copy the URL to the system clipboard:
 ```shell
-aws-console --clipboard
+$ aws-console --clipboard
 ```
 
 ---
 
 Display the generated URL in the terminal as a QR code:
 ```shell
-aws-console --qr
+$ aws-console --qr
 ```
 
 Or save it as an image to a file:
 ```shell
-aws-console --qr > qr.png
+$ aws-console --qr > qr.png
 ```
 
 ---
 
 Limit session duration to half an hour:
 ```shell
-aws-console --duration 30m
+$ aws-console --duration 30m
 ```
 
 Redirect to the IAM service after logging in:
 ```shell
-aws-console --location iam
+$ aws-console --location iam
 ```
 
 ---
 
 Federate the user and use the name "audit":
 ```shell
-aws-console --name audit
+$ aws-console --name audit
 ```
 
 Attach a readonly policy to the federated user:
 ```shell
-aws-console --policy readonly
+$ aws-console --policy readonly
 ```
 
 ## License
 
 This code is distributed under the [MIT License][license-link], see [LICENSE.txt][license-file] for more information.
 
+<p align="center">
+  Created by <a href="https://github.com/joshdk">Josh Komoroske</a> ☕
+</p>
+
+[banner-image-link]:     https://user-images.githubusercontent.com/307183/192825989-367a0b2b-7fe1-4dae-81ef-f4459c061034.png
 [github-actions-badge]:  https://github.com/joshdk/aws-console/workflows/Build/badge.svg
 [github-actions-link]:   https://github.com/joshdk/aws-console/actions
 [github-release-badge]:  https://img.shields.io/github/release/joshdk/aws-console/all.svg
 [github-release-link]:   https://github.com/joshdk/aws-console/releases
+[github-repo-link]:      https://github.com/joshdk/aws-console
 [license-badge]:         https://img.shields.io/badge/license-MIT-green.svg
 [license-file]:          https://github.com/joshdk/aws-console/blob/master/LICENSE.txt
 [license-link]:          https://opensource.org/licenses/MIT
