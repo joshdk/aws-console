@@ -1,13 +1,37 @@
+issues:
+  exclude-use-default: false
+
 linters:
   enable-all: true
   disable:
+    # Linters that are deprecated.
     - exhaustivestruct
+    - scopelint
+    - interfacer
+    - maligned
+    - golint
+    - ifshort
+    - structcheck
+    - nosnakecase
+    - deadcode
+    - varcheck
+
+    # Linters that are disabled because of generics.
+    - rowserrcheck
+    - sqlclosecheck
+    - wastedassign
+
+    # Linters that are not used for this project.
     - exhaustruct
     - funlen
     - lll
-    - maligned
     - tagliatelle
     - wrapcheck
 
-issues:
-  exclude-use-default: false
+linters-settings:
+  goheader:
+    template: |-
+      Copyright Josh Komoroske. All rights reserved.
+      Use of this source code is governed by the MIT license,
+      a copy of which can be found in the LICENSE.txt file.
+      SPDX-License-Identifier: MIT

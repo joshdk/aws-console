@@ -3,6 +3,7 @@
 // a copy of which can be found in the LICENSE.txt file.
 // SPDX-License-Identifier: MIT
 
+// Package main contains the entry point for aws-console.
 package main
 
 import (

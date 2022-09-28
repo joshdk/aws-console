@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -50,32 +49,32 @@ func FromConfig(profile string) (*sts.Credentials, error) {
 // Expects JSON data in one of two possible formats. The first is returned by
 // several STS operations (assume-role/get-session-token/etc) and looks like:
 //
-//     {
-//         "AssumedRoleUser": {...},
-//         "Credentials": {
-//             "AccessKeyId":     "...",
-//             "SecretAccessKey": "...",
-//             "SessionToken":    "..."
-//             "Expiration":      "...",
-//         }
-//     }
+//	{
+//	    "AssumedRoleUser": {...},
+//	    "Credentials": {
+//	        "AccessKeyId":     "...",
+//	        "SecretAccessKey": "...",
+//	        "SessionToken":    "..."
+//	        "Expiration":      "...",
+//	    }
+//	}
 //
 // The second is returned by various AWS cli credential exec plugins, and looks
 // like:
 //
-//     {
-//         "AccessKeyId":     "...",
-//         "SecretAccessKey": "...",
-//         "SessionToken":    "...",
-//         "Expiration":      "...",
-//         "Version":         1
-//     }
+//	{
+//	    "AccessKeyId":     "...",
+//	    "SecretAccessKey": "...",
+//	    "SessionToken":    "...",
+//	    "Expiration":      "...",
+//	    "Version":         1
+//	}
 //
 // See https://docs.aws.amazon.com/cli/latest/reference/sts/assume-role.html#output.
 // See https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sourcing-external.html.
 func FromReader(reader io.Reader) (*sts.Credentials, error) {
 	// Read the entire body, as it will be potentially parsed multiple times.
-	body, err := ioutil.ReadAll(reader)
+	body, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +106,7 @@ func FromReader(reader io.Reader) (*sts.Credentials, error) {
 	}
 
 	// Credentials could not be fully unmarshaled.
-	return nil, fmt.Errorf("failed to parse credentials") // nolint:goerr113
+	return nil, fmt.Errorf("failed to parse credentials") //nolint:goerr113
 }
 
 // FederateUser will federate the given user credentials by calling STS

@@ -58,7 +58,7 @@ type flags struct {
 }
 
 // Command returns a complete handler for the aws-console cli.
-func Command() *cobra.Command { // nolint:cyclop
+func Command() *cobra.Command { //nolint:cyclop
 	var flags flags
 
 	cmd := &cobra.Command{
@@ -105,7 +105,7 @@ func Command() *cobra.Command { // nolint:cyclop
 			// service in the AWS Console.
 			location, ok := resolveLocationAlias(flags.location)
 			if !ok {
-				return fmt.Errorf("could not resolve location %q", flags.location) // nolint:goerr113
+				return fmt.Errorf("could not resolve location %q", flags.location) //nolint:goerr113
 			}
 
 			// Generate a login URL for the AWS Console.
@@ -123,12 +123,12 @@ func Command() *cobra.Command { // nolint:cyclop
 				return browser.OpenURL(url.String())
 			case flags.clipboard:
 				// Copy the login url to the system clipboard.
-				fmt.Println("Copied AWS Console login URL to clipboard.") // nolint:forbidigo
+				fmt.Println("Copied AWS Console login URL to clipboard.") //nolint:forbidigo
 
 				return clipboard.WriteAll(url.String())
 			default:
 				// Print the login url.
-				fmt.Println(url.String()) // nolint:forbidigo
+				fmt.Println(url.String()) //nolint:forbidigo
 
 				return nil
 			}
@@ -172,7 +172,7 @@ func Command() *cobra.Command { // nolint:cyclop
 
 	// Define -s/--qr-size flag.
 	cmd.Flags().IntVarP(&flags.qrSize, "qr-size", "s",
-		780, // nolint:gomnd
+		780, //nolint:gomnd
 		"width in pixels of QR code")
 
 	// Define -A/--user-agent flag.
