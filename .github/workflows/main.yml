@@ -38,9 +38,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run commitlint
-        uses: wagoid/commitlint-github-action@v4
-
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
