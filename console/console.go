@@ -68,18 +68,18 @@ func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, location, 
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", userAgent) // nolint:wsl
+	req.Header.Set("User-Agent", userAgent) //nolint:wsl
 
 	// Perform the actual API request.
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close() // nolint:errcheck
+	defer resp.Body.Close() //nolint:errcheck
 
 	// Verify that we received an HTTP 200 OK status code.
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("request failed: %s", resp.Status) // nolint:goerr113
+		return nil, fmt.Errorf("request failed: %s", resp.Status) //nolint:goerr113
 	}
 
 	// Extract a signin token from the response body.
@@ -100,7 +100,7 @@ func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, location, 
 // returns the contained signin token.
 func extractToken(reader io.Reader) (string, error) {
 	type response struct {
-		SigninToken string `json:"SigninToken"` // nolint:tagliatelle
+		SigninToken string `json:"SigninToken"` //nolint:tagliatelle
 	}
 
 	var resp response

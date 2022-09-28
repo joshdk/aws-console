@@ -10,7 +10,7 @@ import "strings"
 // locations is a list of aliases that can be resolved to URLs in the AWS
 // Console. Used for quickly redirecting the user to the desired service after
 // logging in.
-var locations = map[string]string{ // nolint:gochecknoglobals
+var locations = map[string]string{ //nolint:gochecknoglobals
 	"billing":  "https://console.aws.amazon.com/billing/home",
 	"console":  "https://console.aws.amazon.com/console/home",
 	"ec2":      "https://console.aws.amazon.com/ec2/v2/home",
@@ -44,7 +44,7 @@ func resolveLocationAlias(alias string) (string, bool) {
 
 // policies is a list of aliases that can be resolved to IAM policy ARNs. Used
 // for attaching a policy to a federated user session.
-var policies = map[string]string{ // nolint:gochecknoglobals
+var policies = map[string]string{ //nolint:gochecknoglobals
 	"admin":    "arn:aws:iam::aws:policy/AdministratorAccess",
 	"all":      "arn:aws:iam::aws:policy/AdministratorAccess",
 	"billing":  "arn:aws:iam::aws:policy/job-function/Billing",
