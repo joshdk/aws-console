@@ -211,7 +211,7 @@ func Command() *cobra.Command { //nolint:cyclop
 
 	// Set a custom version template.
 	cmd.SetVersionTemplate(versionFmt(
-		"homepage: https://github.com/joshdk/aws-auth\n"+
+		"homepage: https://github.com/joshdk/aws-console\n"+
 			"author:   Josh Komoroske\n"+
 			"license:  MIT\n",
 		"version:  %s\n"+
