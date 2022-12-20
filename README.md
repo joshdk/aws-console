@@ -14,7 +14,7 @@ Prebuilt binaries for several architectures can be found attached to any of the 
 
 For Linux:
 ```shell
-wget https://github.com/joshdk/aws-console/releases/download/v0.3.0/aws-console-linux-amd64.tar.gz
+wget https://github.com/joshdk/aws-console/releases/download/v0.4.0/aws-console-linux-amd64.tar.gz
 tar -xf aws-console-linux-amd64.tar.gz
 sudo install aws-console /usr/bin/aws-console
 ```
