@@ -6,39 +6,19 @@ builds:
 
     targets:
       - darwin_amd64
+      - darwin_arm64
       - linux_amd64
 
     flags:
+      - -buildvcs=false
       - -trimpath
 
     ldflags:
       - -s -w
+      - -buildid=
       - -X jdk.sh/meta.date={{ .Date }}
       - -X jdk.sh/meta.sha={{ .Commit }}
       - -X jdk.sh/meta.version={{ .Tag }}
-      - -buildid=
-
-    env:
-      - CGO_ENABLED=0
-
-    hooks:
-      post: upx --best --ultra-brute "{{ .Path }}"
-
-  - id: aws-console-m1
-    binary: aws-console
-
-    targets:
-      - darwin_arm64
-
-    flags:
-      - -trimpath
-
-    ldflags:
-      - -s -w
-      - -X jdk.sh/meta.date={{ .Date }}
-      - -X jdk.sh/meta.sha={{ .Commit }}
-      - -X jdk.sh/meta.version={{ .Tag }}
-      - -buildid=
 
     env:
       - CGO_ENABLED=0
