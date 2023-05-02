@@ -75,7 +75,7 @@ func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, location, 
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint
 
 	// Verify that we received an HTTP 200 OK status code.
 	if resp.StatusCode != http.StatusOK {
