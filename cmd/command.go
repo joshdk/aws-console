@@ -53,6 +53,10 @@ type flags struct {
 	// qrSize is the width in pixels of the rendered QR code.
 	qrSize int
 
+	// region is the preferred AWS Console region used when redirecting after
+	// logging in.
+	region string
+
 	// userAgent is the user agent to use when making API calls.
 	userAgent string
 }
@@ -81,15 +85,26 @@ func Command() *cobra.Command { //nolint:cyclop
 			// Obtain credentials from either STDIN or a named AWS cli profile.
 			var creds *sts.Credentials
 			var err error
+			var region string
 			if flags.profile == "-" {
 				// Retrieve credentials from JSON via STDIN.
 				creds, err = credentials.FromReader(os.Stdin)
 			} else {
 				// Retrieve credentials from the AWS cli config files.
-				creds, err = credentials.FromConfig(flags.profile)
+				creds, region, err = credentials.FromConfig(flags.profile)
 			}
 			if err != nil {
 				return err
+			}
+
+			// Set the preferred console region:
+			// - Use the value from --region if given.
+			// - Use the value from ~/.aws/config if given.
+			// - Fall back to us-east-1.
+			if flags.region != "" {
+				region = flags.region
+			} else if region == "" {
+				region = "us-east-1"
 			}
 
 			// If the named profile was configured with user credentials
@@ -103,7 +118,7 @@ func Command() *cobra.Command { //nolint:cyclop
 
 			// Resolve the given location alias into a redirect url to a
 			// service in the AWS Console.
-			location, ok := resolveLocationAlias(flags.location)
+			location, ok := resolveLocationAlias(flags.location, region)
 			if !ok {
 				return fmt.Errorf("could not resolve location %q", flags.location) //nolint:goerr113
 			}
@@ -174,6 +189,11 @@ func Command() *cobra.Command { //nolint:cyclop
 	cmd.Flags().IntVarP(&flags.qrSize, "qr-size", "s",
 		780, //nolint:gomnd
 		"width in pixels of QR code")
+
+	// Define -r/--region flag.
+	cmd.Flags().StringVarP(&flags.region, "region", "r",
+		"",
+		"preferred console region when redirecting")
 
 	// Define -A/--user-agent flag.
 	cmd.Flags().StringVarP(&flags.userAgent, "user-agent", "A",

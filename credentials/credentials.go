@@ -24,25 +24,25 @@ import (
 // ~/.aws/credentials and ~/.aws/config. Credentials for the named profile are
 // returned, or the default profile if no name is given. Additionally, the
 // value of $AWS_PROFILE will be used if it is set.
-func FromConfig(profile string) (*sts.Credentials, error) {
+func FromConfig(profile string) (*sts.Credentials, string, error) {
 	sess, err := session.NewSessionWithOptions(session.Options{
 		Profile:           profile,
 		SharedConfigState: session.SharedConfigEnable,
 	})
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	value, err := sess.Config.Credentials.Get()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	return &sts.Credentials{
 		AccessKeyId:     aws.String(value.AccessKeyID),
 		SecretAccessKey: aws.String(value.SecretAccessKey),
 		SessionToken:    aws.String(value.SessionToken),
-	}, nil
+	}, aws.StringValue(sess.Config.Region), nil
 }
 
 // FromReader retrieves credentials from given io.Reader, typically os.Stdin.
