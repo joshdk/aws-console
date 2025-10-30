@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 	"jdk.sh/meta"
@@ -85,7 +85,7 @@ func Command() *cobra.Command { //nolint:cyclop,funlen
 		RunE: func(*cobra.Command, []string) error {
 			// Obtain credentials from either STDIN or a named AWS cli profile.
 			var (
-				creds  *sts.Credentials
+				creds  *aws.Credentials
 				err    error
 				region string
 			)
@@ -104,11 +104,14 @@ func Command() *cobra.Command { //nolint:cyclop,funlen
 
 			// Set the preferred console region:
 			// - Use the value from --region if given.
-			// - Use the value from ~/.aws/config if given.
+			// - Use the value from $AWS_REGION if given.
 			// - Fall back to us-east-1.
-			if flags.region != "" {
+			switch {
+			case flags.region != "":
 				region = flags.region
-			} else if region == "" {
+			case os.Getenv("AWS_REGION") != "":
+				region = os.Getenv("AWS_REGION")
+			case region == "":
 				region = "us-east-1"
 			}
 
@@ -117,7 +120,7 @@ func Command() *cobra.Command { //nolint:cyclop,funlen
 			// If the named profile was configured with user credentials
 			// (opposed to a role), then the user must be federated before an
 			// AWS Console login url can be generated.
-			creds, err = credentials.FederateUser(creds, flags.federateName, federatePolicy, flags.duration, flags.userAgent)
+			creds, err = credentials.FederateUser(creds, region, flags.federateName, federatePolicy, flags.duration, flags.userAgent)
 			if err != nil {
 				return err
 			}
