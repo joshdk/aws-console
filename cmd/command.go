@@ -126,7 +126,26 @@ func Command() *cobra.Command { //nolint:cyclop
 			// Generate a login URL for the AWS Console.
 			url, err := console.GenerateLoginURL(creds, flags.duration, location, flags.userAgent)
 			if err != nil {
-				return err
+				// There is a very specific failure case where if you attempt
+				// to generate a Console login URL for an IAM Role, which
+				// itself was assumed from another IAM Role (referred to as
+				// "role chaining"), and *also* attempt to include a
+				// SessionDuration HTTP parameter, then the call will fail.
+				//
+				// Since you cannot (programmatically) determine if the
+				// incoming credentials were the product of role chaining and
+				// act accordingly, the only remediation is to retry the
+				// Console login URL generation without the duration input.
+				//
+				// This edge-case behavior is only documented in this note:
+				// | Do not use the SessionDuration HTTP parameter when you get
+				// | temporary credentials through role chaining. The operation
+				// | will fail.
+				// See https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
+				url, err = console.GenerateLoginURL(creds, 0, location, flags.userAgent)
+				if err != nil {
+					return err
+				}
 			}
 
 			switch {
