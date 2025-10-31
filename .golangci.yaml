@@ -1,37 +1,39 @@
-issues:
-  exclude-use-default: false
+version: "2"
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/joshdk/aws-console)
 
 linters:
-  enable-all: true
+  default: all
+
   disable:
-    # Linters that are deprecated.
-    - exhaustivestruct
-    - scopelint
-    - interfacer
-    - maligned
-    - golint
-    - ifshort
-    - structcheck
-    - nosnakecase
-    - deadcode
-    - varcheck
-
-    # Linters that are disabled because of generics.
-    - rowserrcheck
-    - sqlclosecheck
-    - wastedassign
-
-    # Linters that are not used for this project.
+    # Linters which are not used for this project:
+    - depguard
+    - err113
     - exhaustruct
-    - funlen
     - lll
+    - noinlineerr
     - tagliatelle
     - wrapcheck
 
-linters-settings:
-  goheader:
-    template: |-
-      Copyright Josh Komoroske. All rights reserved.
-      Use of this source code is governed by the MIT license,
-      a copy of which can be found in the LICENSE.txt file.
-      SPDX-License-Identifier: MIT
+    # Linters which are deprecated:
+    - wsl
+
+  settings:
+    goheader:
+      template: |-
+        Copyright Josh Komoroske. All rights reserved.
+        Use of this source code is governed by the MIT license,
+        a copy of which can be found in the LICENSE.txt file.
+        SPDX-License-Identifier: MIT

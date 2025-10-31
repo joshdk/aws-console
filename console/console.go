@@ -68,6 +68,7 @@ func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, location, 
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("User-Agent", userAgent) //nolint:wsl
 
 	// Perform the actual API request.
@@ -79,7 +80,7 @@ func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, location, 
 
 	// Verify that we received an HTTP 200 OK status code.
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("request failed: %s", resp.Status) //nolint:goerr113
+		return nil, fmt.Errorf("request failed: %s", resp.Status)
 	}
 
 	// Extract a signin token from the response body.
