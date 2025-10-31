@@ -13,12 +13,13 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/joshdk/aws-console/console"
-	"github.com/joshdk/aws-console/credentials"
-	"github.com/joshdk/aws-console/qr"
 	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 	"jdk.sh/meta"
+
+	"github.com/joshdk/aws-console/console"
+	"github.com/joshdk/aws-console/credentials"
+	"github.com/joshdk/aws-console/qr"
 )
 
 type flags struct {
@@ -62,7 +63,7 @@ type flags struct {
 }
 
 // Command returns a complete handler for the aws-console cli.
-func Command() *cobra.Command { //nolint:cyclop
+func Command() *cobra.Command { //nolint:cyclop,funlen
 	var flags flags
 
 	cmd := &cobra.Command{
@@ -83,9 +84,12 @@ func Command() *cobra.Command { //nolint:cyclop
 
 		RunE: func(*cobra.Command, []string) error {
 			// Obtain credentials from either STDIN or a named AWS cli profile.
-			var creds *sts.Credentials
-			var err error
-			var region string
+			var (
+				creds  *sts.Credentials
+				err    error
+				region string
+			)
+
 			if flags.profile == "-" {
 				// Retrieve credentials from JSON via STDIN.
 				creds, err = credentials.FromReader(os.Stdin)
@@ -93,6 +97,7 @@ func Command() *cobra.Command { //nolint:cyclop
 				// Retrieve credentials from the AWS cli config files.
 				creds, region, err = credentials.FromConfig(flags.profile)
 			}
+
 			if err != nil {
 				return err
 			}
@@ -107,10 +112,11 @@ func Command() *cobra.Command { //nolint:cyclop
 				region = "us-east-1"
 			}
 
+			federatePolicy := resolvePolicyAlias(flags.federatePolicy)
+
 			// If the named profile was configured with user credentials
 			// (opposed to a role), then the user must be federated before an
 			// AWS Console login url can be generated.
-			federatePolicy := resolvePolicyAlias(flags.federatePolicy)
 			creds, err = credentials.FederateUser(creds, flags.federateName, federatePolicy, flags.duration, flags.userAgent)
 			if err != nil {
 				return err
@@ -120,7 +126,7 @@ func Command() *cobra.Command { //nolint:cyclop
 			// service in the AWS Console.
 			location, ok := resolveLocationAlias(flags.location, region)
 			if !ok {
-				return fmt.Errorf("could not resolve location %q", flags.location) //nolint:goerr113
+				return fmt.Errorf("could not resolve location %q", flags.location)
 			}
 
 			// Generate a login URL for the AWS Console.
@@ -206,7 +212,7 @@ func Command() *cobra.Command { //nolint:cyclop
 
 	// Define -s/--qr-size flag.
 	cmd.Flags().IntVarP(&flags.qrSize, "qr-size", "s",
-		780, //nolint:gomnd
+		780, //nolint:mnd
 		"width in pixels of QR code")
 
 	// Define -r/--region flag.
@@ -264,7 +270,7 @@ func Command() *cobra.Command { //nolint:cyclop
 
 // versionFmt returns the given literal, as well as a formatted string if
 // version metadata is set.
-func versionFmt(literal, format string, a ...interface{}) string {
+func versionFmt(literal, format string, a ...any) string {
 	if meta.Version() == "" {
 		return literal
 	}

@@ -9,7 +9,7 @@ package credentials
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"time"
 
@@ -90,14 +90,14 @@ func FromReader(reader io.Reader) (*sts.Credentials, error) {
 	var result creds
 
 	if err := json.Unmarshal(body, &result); err == nil && result.Credentials.AccessKeyID != "" && result.Credentials.SecretAccessKey != "" {
-		// Credentials were unmarshaled into the entire struct.
+		// Credentials were unmarshalled into the entire struct.
 		return &sts.Credentials{
 			AccessKeyId:     aws.String(result.Credentials.AccessKeyID),
 			SecretAccessKey: aws.String(result.Credentials.SecretAccessKey),
 			SessionToken:    aws.String(result.Credentials.SessionToken),
 		}, nil
 	} else if err := json.Unmarshal(body, &result.Credentials); err == nil && result.Credentials.AccessKeyID != "" && result.Credentials.SecretAccessKey != "" {
-		// Credentials were unmarshaled into part of the struct.
+		// Credentials were unmarshalled into part of the struct.
 		return &sts.Credentials{
 			AccessKeyId:     aws.String(result.Credentials.AccessKeyID),
 			SecretAccessKey: aws.String(result.Credentials.SecretAccessKey),
@@ -105,8 +105,8 @@ func FromReader(reader io.Reader) (*sts.Credentials, error) {
 		}, nil
 	}
 
-	// Credentials could not be fully unmarshaled.
-	return nil, fmt.Errorf("failed to parse credentials") //nolint:goerr113
+	// Credentials could not be fully unmarshalled.
+	return nil, errors.New("failed to parse credentials")
 }
 
 // FederateUser will federate the given user credentials by calling STS
