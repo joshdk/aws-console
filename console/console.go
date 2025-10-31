@@ -16,14 +16,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 // GenerateLoginURL takes the given sts.Credentials and generates a url.URL
 // that can be used to login to the AWS Console.
 // See https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html.
-func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, location, userAgent string) (*url.URL, error) {
+func GenerateLoginURL(creds *aws.Credentials, duration time.Duration, location, userAgent string) (*url.URL, error) {
 	// federationURL is the url used for AWS federation actions.
 	const federationURL = "https://signin.aws.amazon.com/federation"
 
@@ -31,9 +30,9 @@ func GenerateLoginURL(creds *sts.Credentials, duration time.Duration, location, 
 	const timeout = 15 * time.Second
 
 	sessionCreds := map[string]string{
-		"sessionId":    aws.StringValue(creds.AccessKeyId),
-		"sessionKey":   aws.StringValue(creds.SecretAccessKey),
-		"sessionToken": aws.StringValue(creds.SessionToken),
+		"sessionId":    creds.AccessKeyID,
+		"sessionKey":   creds.SecretAccessKey,
+		"sessionToken": creds.SessionToken,
 	}
 
 	// Encode our credentials into JSON.
