@@ -1,16 +1,18 @@
-name: Commitlint
-on: pull_request
+name: lint
+
+on:
+  pull_request:
 
 jobs:
   lint:
-    name: Commitlint
-    runs-on: ubuntu-22.04
+    name: commitlint
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v5
 
-      - name: Run commitlint
-        uses: wagoid/commitlint-github-action@v5
+      - uses: wagoid/commitlint-github-action@v6
