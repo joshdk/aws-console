@@ -20,6 +20,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials/processcreds"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/aws-sdk-go-v2/service/sts/types"
+	"github.com/aws/smithy-go/middleware"
+	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
 // FromConfig retrieves credentials from the AWS cli config files, typically
@@ -105,20 +107,25 @@ func FromReader(reader io.Reader) (*aws.Credentials, error) {
 // FederateUser will federate the given user credentials by calling STS
 // GetFederationToken. If the given credentials are not for a user (like
 // credentials for a role) then they are returned unmodified.
-func FederateUser(creds *aws.Credentials, region, name, policy string, duration time.Duration, _ string) (*aws.Credentials, error) {
+func FederateUser(creds *aws.Credentials, region, name, policy string, duration time.Duration, userAgent string) (*aws.Credentials, error) {
 	// Only federate if user credentials were given.
 	if creds.SessionToken != "" {
 		return creds, nil
 	}
 
-	client := sts.NewFromConfig(aws.Config{
-		Credentials: credentials.NewStaticCredentialsProvider(
-			creds.AccessKeyID,
-			creds.SecretAccessKey,
-			creds.SessionToken,
-		),
-		Region: region,
-	})
+	client := sts.NewFromConfig(
+		aws.Config{
+			Credentials: credentials.NewStaticCredentialsProvider(
+				creds.AccessKeyID,
+				creds.SecretAccessKey,
+				creds.SessionToken,
+			),
+			Region: region,
+		},
+		func(options *sts.Options) {
+			options.APIOptions = append(options.APIOptions, setUserAgent(userAgent))
+		},
+	)
 
 	input := sts.GetFederationTokenInput{
 		Name: aws.String(name),
@@ -149,4 +156,27 @@ func FederateUser(creds *aws.Credentials, region, name, policy string, duration 
 		SecretAccessKey: aws.ToString(result.Credentials.SecretAccessKey),
 		SessionToken:    aws.ToString(result.Credentials.SessionToken),
 	}, nil
+}
+
+func setUserAgent(useragent string) func(stack *middleware.Stack) error {
+	return func(stack *middleware.Stack) error {
+		bm := userAgentMiddleware(useragent)
+		stack.Build.Remove(bm.ID()) //nolint
+
+		return stack.Build.Add(&bm, middleware.After)
+	}
+}
+
+type userAgentMiddleware string
+
+func (userAgentMiddleware) ID() string {
+	return "UserAgent"
+}
+
+func (u userAgentMiddleware) HandleBuild(ctx context.Context, in middleware.BuildInput, next middleware.BuildHandler) (middleware.BuildOutput, middleware.Metadata, error) {
+	if req, ok := in.Request.(*smithyhttp.Request); ok {
+		req.Header.Set("User-Agent", string(u))
+	}
+
+	return next.HandleBuild(ctx, in)
 }
