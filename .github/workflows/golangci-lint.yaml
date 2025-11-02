@@ -1,30 +1,27 @@
-name: GolangCI-Lint
+name: lint
+
 on:
   pull_request:
-    branches:
-      - '*'
   push:
     branches:
       - "master"
-    tags:
-      - "!*"
 
 jobs:
   lint:
-    name: GolangCI-Lint
-    runs-on: ubuntu-22.04
+    name: golangci-lint
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-      - name: Setup go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
 
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v8
+      - uses: golangci/golangci-lint-action@v8
         with:
           # https://github.com/golangci/golangci-lint/releases/tag/v2.6.0
           version: v2.6.0
