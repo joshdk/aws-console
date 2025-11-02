@@ -10,23 +10,38 @@
 
 ## Installation
 
-Prebuilt binaries for several architectures can be found attached to any of the available [releases][github-release-link].
+### Release artifact
 
-For Linux:
+Binaries for various architectures are published on the [releases][github-release-link] page.
+
+The latest release can be installed by running:
+
 ```shell
-wget https://github.com/joshdk/aws-console/releases/download/v0.4.0/aws-console-linux-amd64.tar.gz
-tar -xf aws-console-linux-amd64.tar.gz
-sudo install aws-console /usr/bin/aws-console
+OS=$(uname | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/')
+curl -Lso aws-console.tar.gz https://github.com/joshdk/aws-console/releases/latest/download/aws-console-${OS}-${ARCH}.tar.gz
+tar -xf aws-console.tar.gz
+sudo mkdir -p /usr/local/bin/
+sudo install aws-console /usr/local/bin/
 ```
 
-For Mac:
+### Brew
+
+Release binaries are also available via [Brew](https://brew.sh).
+
+The latest release can be installed by running:
+
 ```shell
 brew tap joshdk/tap
 brew install joshdk/tap/aws-console
 ```
 
-A development version can also be built directly from this repository.
-Requires that you already have a functional Go toolchain installed.
+### Go install
+
+Installation can also be done directly from this repository.
+
+The latest commit can be installed by running:
+
 ```shell
 go install github.com/joshdk/aws-console@master
 ```
