@@ -1,0 +1,5 @@
+Info:
+  https://{{ .Path }}
+  {{ .Version }}
+  {{- if .ShortRevision }} ({{ .ShortRevision }}){{ end }}
+  {{- if .Timestamp }} built on {{ .Timestamp }}{{ end }}

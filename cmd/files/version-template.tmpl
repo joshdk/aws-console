@@ -1,0 +1,12 @@
+homepage: https://{{ .Path }}
+author:   Josh Komoroske
+license:  MIT
+version:  {{ .Version }}
+{{ if .ShortRevision -}}
+revision: {{ .ShortRevision }}
+{{ end -}}
+{{ if .Timestamp -}}
+date:     {{ .Timestamp }}
+{{ end -}}
+platform: {{ .OS }}/{{ .Arch}}
+runtime:  {{ .Runtime }}

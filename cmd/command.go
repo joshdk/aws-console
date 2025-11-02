@@ -9,13 +9,14 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/atotto/clipboard"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/joshdk/buildversion"
 	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
-	"jdk.sh/meta"
 
 	"github.com/joshdk/aws-console/console"
 	"github.com/joshdk/aws-console/credentials"
@@ -225,58 +226,17 @@ func Command() *cobra.Command { //nolint:cyclop,funlen
 
 	// Define -A/--user-agent flag.
 	cmd.Flags().StringVarP(&flags.userAgent, "user-agent", "A",
-		versionFmt("joshdk/aws-console", " %s (%s)", meta.Version(), meta.ShortSHA()),
+		buildversion.Template("joshdk/aws-console {{ .Version }}{{- if .ShortRevision }} ({{ .ShortRevision }}){{ end }}"),
 		"user agent to use for http requests")
 
-	cmd.Example = `  Generate a login url for the default profile:
-  $ aws-console
-
-  Generate a login url for the "production" profile:
-  $ aws-console production
-
-  Generate a login url from the output of the aws cli:
-  $ aws sts assume-role … | aws-console -
-
-  Open url with the default browser:
-  $ aws-console --browser
-
-  Redirect to IAM service after logging in:
-  $ aws-console --location iam
-
-  Display a QR code for the login url:
-  $ aws-console --qr
-
-  Save QR code to a file:
-  $ aws-console --qr > qr.png`
+	// Set a custom list of examples.
+	cmd.Example = strings.TrimRight(exampleText, "\n")
 
 	// Add a custom usage footer template.
-	cmd.SetUsageTemplate(cmd.UsageTemplate() + versionFmt(
-		"\nInfo:\n"+
-			"  https://github.com/joshdk/aws-console\n",
-		"  %s (%s) built on %v\n",
-		meta.Version(), meta.ShortSHA(), meta.DateFormat(time.RFC3339),
-	))
+	cmd.SetUsageTemplate(cmd.UsageTemplate() + "\n" + buildversion.Template(usageTemplate))
 
 	// Set a custom version template.
-	cmd.SetVersionTemplate(versionFmt(
-		"homepage: https://github.com/joshdk/aws-console\n"+
-			"author:   Josh Komoroske\n"+
-			"license:  MIT\n",
-		"version:  %s\n"+
-			"sha:      %s\n"+
-			"date:     %s\n",
-		meta.Version(), meta.ShortSHA(), meta.DateFormat(time.RFC3339),
-	))
+	cmd.SetVersionTemplate(buildversion.Template(versionTemplate))
 
 	return cmd
-}
-
-// versionFmt returns the given literal, as well as a formatted string if
-// version metadata is set.
-func versionFmt(literal, format string, a ...any) string {
-	if meta.Version() == "" {
-		return literal
-	}
-
-	return literal + fmt.Sprintf(format, a...)
 }

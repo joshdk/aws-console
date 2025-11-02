@@ -8,12 +8,12 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.31.16
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.20
 	github.com/aws/aws-sdk-go-v2/service/sts v1.39.0
+	github.com/joshdk/buildversion v0.1.0
 	github.com/mattn/go-isatty v0.0.20
 	github.com/mattn/go-sixel v0.0.5
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.10.1
-	jdk.sh/meta v0.1.1-0.20211021015548-cff3b930ebd9
 )
 
 require (
