@@ -13,12 +13,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
 
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          # https://github.com/goreleaser/goreleaser/releases/tag/v2.12.7
+          version: v2.12.7
+          args: build --clean --snapshot
+
       - shell: sh
-        run: |-
-          go build -o ./dist/aws-console .
-          ./dist/aws-console --version
+        run: ./dist/aws-console_linux_amd64_v1/aws-console --version
+
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: artifacts
+          path: dist/
+          retention-days: 1

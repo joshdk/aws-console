@@ -1,0 +1,20 @@
+  Generate a login url for the default profile:
+  $ aws-console
+
+  Generate a login url for the "production" profile:
+  $ aws-console production
+
+  Generate a login url from the output of the aws cli:
+  $ aws sts assume-role … | aws-console -
+
+  Open url with the default browser:
+  $ aws-console --browser
+
+  Redirect to IAM service after logging in:
+  $ aws-console --location iam
+
+  Display a QR code for the login url:
+  $ aws-console --qr
+
+  Save QR code to a file:
+  $ aws-console --qr > qr.png

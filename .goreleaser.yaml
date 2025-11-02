@@ -1,63 +1,63 @@
-project_name: aws-console
+version: 2
 
 builds:
-  - id: aws-console
-    binary: aws-console
+  - goos:
+      - darwin
+      - linux
 
-    targets:
-      - darwin_amd64
-      - darwin_arm64
-      - linux_amd64
+    goarch:
+      - amd64
+      - arm64
 
     flags:
       - -buildvcs=false
       - -trimpath
 
     ldflags:
-      - -s -w
+      - -X github.com/joshdk/aws-console/cmd.revision={{ .FullCommit }}
+      - -X github.com/joshdk/aws-console/cmd.timestamp={{ .Date }}
+      - -X github.com/joshdk/aws-console/cmd.version={{ .Summary }}
       - -buildid=
-      - -X jdk.sh/meta.date={{ .Date }}
-      - -X jdk.sh/meta.sha={{ .Commit }}
-      - -X jdk.sh/meta.version={{ .Tag }}
+      - -s
+      - -w
 
     env:
       - CGO_ENABLED=0
 
 archives:
-  - id: aws-console
+  - formats: [tar.gz]
     name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
 
 release:
   name_template: "{{ .Tag }} Release"
   prerelease: auto
 
-checksum:
-  name_template: "checksums.txt"
-
 changelog:
-  skip: true
+  disable: true
 
-brews:
-  - name: aws-console
+checksum:
+  disable: true
 
-    tap:
-      owner: joshdk
-      name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_GITHUB_TOKEN }}"
+homebrew_casks:
+  - description: Generate a temporary login URL for the AWS Console
+    homepage: https://github.com/joshdk/aws-console
+    license: MIT
 
-    url_template: "https://github.com/joshdk/aws-console/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-
-    commit_msg_template: "feat: brew formula update for {{ .ProjectName }} {{ .Tag }}"
     commit_author:
       name: Josh Komoroske
       email: jdkomo@gmail.com
 
-    folder: Formula
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/{{ .ProjectName }}"]
+          end
 
-    caveats: "Run aws-console --help for usage"
-    homepage: "https://github.com/joshdk/aws-console"
-    description: "Generate a temporary login URL for the AWS Console"
-    license: "MIT"
+    repository:
+      owner: joshdk
+      name: homebrew-tap
 
-    test: |
-      system "#{bin}/aws-console --version"
+      git:
+        url: git@github.com:joshdk/homebrew-tap.git
+        private_key: "{{ .Env.HOMEBREW_DEPLOY_KEY }}"
