@@ -11,28 +11,34 @@ import "strings"
 // Console. Used for quickly redirecting the user to the desired service after
 // logging in.
 var locations = map[string]string{ //nolint:gochecknoglobals
-	"account":  "https://console.aws.amazon.com/billing/home#/account",
-	"billing":  "https://console.aws.amazon.com/billing/home",
-	"console":  "https://{{.region}}.console.aws.amazon.com/console/home?region={{.region}}",
-	"ec2":      "https://{{.region}}.console.aws.amazon.com/ec2/home?region={{.region}}#Home:",
-	"ecr":      "https://{{.region}}.console.aws.amazon.com/ecr/repositories?region={{.region}}",
-	"eks":      "https://{{.region}}.console.aws.amazon.com/eks/home?region={{.region}}#/clusters",
-	"groups":   "https://console.aws.amazon.com/iamv2/home#/groups",
-	"home":     "https://{{.region}}.console.aws.amazon.com/console/home?region={{.region}}",
-	"iam":      "https://console.aws.amazon.com/iamv2/home#/home",
-	"kms":      "https://{{.region}}.console.aws.amazon.com/kms/home?region={{.region}}#/kms/keys",
-	"org":      "https://console.aws.amazon.com/organizations/v2/home/dashboard",
-	"policies": "https://console.aws.amazon.com/iamv2/home#/policies",
-	"r53":      "https://console.aws.amazon.com/route53/v2/hostedzones#",
-	"rds":      "https://{{.region}}.console.aws.amazon.com/rds/home?region={{.region}}#databases:",
-	"roles":    "https://console.aws.amazon.com/iamv2/home#/roles",
-	"s3":       "https://s3.console.aws.amazon.com/s3/buckets?region={{.region}}",
-	"support":  "https://support.console.aws.amazon.com/support/home",
-	"users":    "https://console.aws.amazon.com/iamv2/home#/users",
-	"vpn":      "https://{{.region}}.console.aws.amazon.com/vpc/home?region={{.region}}#ClientVPNEndpoints:",
+	"account":    "https://{region}.{console}/billing/home?region={region}#/account",
+	"billing":    "https://{region}.{console}/costmanagement/home?region={region}#/home",
+	"cloudfront": "https://{region}.{console}/cloudfront/v4/home?region={region}#/distributions",
+	"cloudtrail": "https://{region}.{console}/cloudtrailv2/home?region={region}#/dashboard",
+	"cloudwatch": "https://{region}.{console}/cloudwatch/home?region={region}#home:",
+	"console":    "https://{region}.{console}/console/home?region={region}",
+	"ec2":        "https://{region}.{console}/ec2/home?region={region}#Instances:",
+	"ecr":        "https://{region}.{console}/ecr/private-registry/repositories?region={region}",
+	"ecs":        "https://{region}.{console}/ecs/v2/clusters?region={region}",
+	"eip":        "https://{region}.{console}/vpcconsole/home?region={region}#Addresses:",
+	"eks":        "https://{region}.{console}/eks/clusters?region={region}",
+	"groups":     "https://{region}.{console}/iam/home?region={region}#/groups",
+	"home":       "https://{region}.{console}/console/home?region={region}",
+	"iam":        "https://{region}.{console}/iam/home?region={region}#/home",
+	"kms":        "https://{region}.{console}/kms/home?region={region}#/kms/home",
+	"org":        "https://{region}.{console}/organizations/v2/home?region={region}",
+	"policies":   "https://{region}.{console}/iam/home?region={region}#/policies",
+	"r53":        "https://{region}.{console}/route53/v2/hostedzones?region={region}",
+	"rds":        "https://{region}.{console}/rds/home?region={region}#databases:",
+	"roles":      "https://{region}.{console}/iam/home?region={region}#/roles",
+	"s3":         "https://{region}.{console}/s3/buckets?region={region}",
+	"support":    "https://support.{console}/support/home?region={region}#/case/history",
+	"users":      "https://{region}.{console}/iam/home?region={region}#/users",
+	"vpc":        "https://{region}.{console}/vpcconsole/home?region={region}#vpcs:",
+	"vpn":        "https://{region}.{console}/vpcconsole/home?region={region}#ClientVPNEndpoints:",
 }
 
-func resolveLocationAlias(alias, region string) (string, bool) {
+func resolveLocationAlias(alias, consoleDomain, region string) (string, bool) {
 	var template string
 
 	if strings.HasPrefix(alias, "https://") {
@@ -46,24 +52,30 @@ func resolveLocationAlias(alias, region string) (string, bool) {
 		return "", false
 	}
 
-	// Replace all region placeholders.
-	return strings.ReplaceAll(template, "{{.region}}", region), true
+	// Replace all the placeholders.
+	return strings.NewReplacer(
+		"{console}", consoleDomain,
+		"{region}", region,
+	).Replace(template), true
 }
 
 // policies is a list of aliases that can be resolved to IAM policy ARNs. Used
 // for attaching a policy to a federated user session.
 var policies = map[string]string{ //nolint:gochecknoglobals
-	"admin":    "arn:aws:iam::aws:policy/AdministratorAccess",
-	"all":      "arn:aws:iam::aws:policy/AdministratorAccess",
-	"billing":  "arn:aws:iam::aws:policy/job-function/Billing",
-	"readonly": "arn:aws:iam::aws:policy/ReadOnlyAccess",
-	"ro":       "arn:aws:iam::aws:policy/ReadOnlyAccess",
+	"admin":    "arn:{partition}:iam::aws:policy/AdministratorAccess",
+	"all":      "arn:{partition}:iam::aws:policy/AdministratorAccess",
+	"billing":  "arn:{partition}:iam::aws:policy/job-function/Billing",
+	"readonly": "arn:{partition}:iam::aws:policy/ReadOnlyAccess",
+	"ro":       "arn:{partition}:iam::aws:policy/ReadOnlyAccess",
 }
 
-func resolvePolicyAlias(alias string) string {
+func resolvePolicyAlias(alias, partition string) string {
+	template := alias
+
 	if result, found := policies[alias]; found {
-		return result
+		// Resolve the alias into a URL.
+		template = result
 	}
 
-	return alias
+	return strings.ReplaceAll(template, "{partition}", partition)
 }

@@ -116,7 +116,14 @@ func Command() *cobra.Command { //nolint:cyclop,funlen
 				region = "us-east-1"
 			}
 
-			federatePolicy := resolvePolicyAlias(flags.federatePolicy)
+			partition, consoleDomain, federationURL, ok := credentials.ResolveRegionPartition(region) //nolint:varnamelen
+			if !ok {
+				return fmt.Errorf("could not determine partition for region %s", region)
+			}
+
+			// Resolve the IAM policy ARN that will be included along with the
+			// GetFederationToken request, if a request is made.
+			federatePolicy := resolvePolicyAlias(flags.federatePolicy, partition)
 
 			// If the named profile was configured with user credentials
 			// (opposed to a role), then the user must be federated before an
@@ -128,13 +135,13 @@ func Command() *cobra.Command { //nolint:cyclop,funlen
 
 			// Resolve the given location alias into a redirect url to a
 			// service in the AWS Console.
-			location, ok := resolveLocationAlias(flags.location, region)
+			location, ok := resolveLocationAlias(flags.location, consoleDomain, region)
 			if !ok {
 				return fmt.Errorf("could not resolve location %q", flags.location)
 			}
 
 			// Generate a login URL for the AWS Console.
-			url, err := console.GenerateLoginURL(creds, flags.duration, location, flags.userAgent)
+			url, err := console.GenerateLoginURL(creds, federationURL, flags.duration, location, flags.userAgent)
 			if err != nil {
 				// There is a very specific failure case where if you attempt
 				// to generate a Console login URL for an IAM Role, which
@@ -152,7 +159,7 @@ func Command() *cobra.Command { //nolint:cyclop,funlen
 				// | temporary credentials through role chaining. The operation
 				// | will fail.
 				// See https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
-				url, err = console.GenerateLoginURL(creds, 0, location, flags.userAgent)
+				url, err = console.GenerateLoginURL(creds, federationURL, 0, location, flags.userAgent)
 				if err != nil {
 					return err
 				}

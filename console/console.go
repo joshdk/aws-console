@@ -22,10 +22,7 @@ import (
 // GenerateLoginURL takes the given sts.Credentials and generates a url.URL
 // that can be used to login to the AWS Console.
 // See https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html.
-func GenerateLoginURL(creds *aws.Credentials, duration time.Duration, location, userAgent string) (*url.URL, error) {
-	// federationURL is the url used for AWS federation actions.
-	const federationURL = "https://signin.aws.amazon.com/federation"
-
+func GenerateLoginURL(creds *aws.Credentials, federationURL string, duration time.Duration, location, userAgent string) (*url.URL, error) {
 	// timeout is a hardcoded 15 second window for HTTP requests to complete.
 	const timeout = 15 * time.Second
 
